@@ -1,0 +1,28 @@
+[comment encoding = UTF-8 /]
+[module generateIngress('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+
+
+[template public generateIngress(environment: Provider)]
+[file (environment.oclAsType(Environment).name + '/Kubernetes Config - Microservices/Ingress.yaml' , false, 'UTF-8')]
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-backend
+  annotations:
+    kubernetes.io/ingress.class: "nginx"  #Hay que instalar nginx en el cluster
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - http:
+      paths:
+[for (microservice : Microservice | environment.oclAsType(Environment).contained_microservices)]
+      - path: /[microservice.name.toLowerFirst()/](/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: [microservice.name.toLowerFirst()/]
+              port:
+                number: [microservice.oclAsType(BackendMicroservice).port/]
+[/for]
+[/file]
+[/template]

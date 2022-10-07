@@ -1,0 +1,38 @@
+[comment encoding = UTF-8 /]
+[module generateRoutesIndex('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import AccelerateGenerator::Queries::MicroserviceQueries /]
+
+[template public generateRoutesIndex(microservice: BackendMicroservice, environment: Provider)]
+[comment index.routes file   /]
+[file (environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/Routes/index.routes.js', false, 'UTF-8')]
+
+//Entity Routes
+[for (entityRoutes: Class | HasRoutesEntities(microservice.oclAsType(Microservice)))]
+import [entityRoutes.oclAsType(Classifier).name/]Route from "./entityRoutes/[entityRoutes.oclAsType(Classifier).name/]Route.js";
+[/for]
+
+[comment  Namespace Routes/]
+[for (namespace : Namespace | microservice.oclAsType(Diagram).contained_namespaces )]
+//[namespace.name/] Routes
+	[for (resource : RESTResource | namespace.oclAsType(RESTNamespace).contained_resources)]
+import [resource.name/]Route from "./[namespace.name/]Routes/[resource.name/]Route.js";
+	[/for]
+
+[/for]
+
+
+[if (HasRoutesEntities(microservice.oclAsType(Microservice)) -> size() > 0)]
+export default {
+	entityRoutes: [ '[' /][for (entityResource : Class | HasRoutesEntities(microservice.oclAsType(Microservice))) separator (',')][entityResource.oclAsType(Classifier).name/]Route[/for][ ']' /],
+[for (namespace : Namespace | microservice.oclAsType(Diagram).contained_namespaces )]
+	[namespace.name/]Routes:[ '[' /][for (resource : RESTResource | namespace.oclAsType(RESTNamespace).contained_resources) separator (',')][resource.name/]Route[/for][ ']' /],
+[/for]
+[/if]
+
+	
+}
+[/file]
+[/template]
+
+		

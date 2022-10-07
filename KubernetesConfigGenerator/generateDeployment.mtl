@@ -1,0 +1,75 @@
+[comment encoding = UTF-8 /]
+[module generateDeployment('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import AccelerateGenerator::Queries::MicroserviceQueries /]
+
+[template public generateDeployment(environment: Provider, microservice: BackendMicroservice, kubernetesConfig: accelerateMLS::KubernetesConfiguration)]
+[file (environment.oclAsType(Environment).name + '/Kubernetes Config - Microservices/Deployments/'+microservice.oclAsType(Microservice).name+'-Deployment.yaml' , false, 'UTF-8')]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: [microservice.oclAsType(Microservice).name.toLowerFirst()/]
+  labels:
+    app: [microservice.oclAsType(Microservice).name.toLowerFirst()/]
+spec:
+  replicas: [kubernetesConfig.replicas/]
+  selector:
+    matchLabels:
+      app: [microservice.oclAsType(Microservice).name.toLowerFirst()/]
+  template:
+    metadata:
+      labels: 
+        app: [microservice.oclAsType(Microservice).name.toLowerFirst()/]
+    spec:
+      containers:
+      - name: [microservice.oclAsType(Microservice).name.toLowerFirst()/]
+		[if (environment.oclAsType(RegistryConfig).url.toString() = 'DockerIo')]
+        image: "docker.io/[environment.oclAsType(RegistryConfig).secretId/]/[microservice.oclAsType(Microservice).name.toLowerFirst()/]:[microservice.oclAsType(Microservice).version/]"
+		[/if]
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "[kubernetesConfig.memoryRequest/]Mi"
+            cpu: "[kubernetesConfig.cpuRequest/]m"
+          limits:
+            memory: "[kubernetesConfig.memoryLimit/]Mi"
+            cpu: "[kubernetesConfig.cpuLimit/]m"
+        ports:
+          - containerPort: [microservice.port/]
+[if (HasHealthCapability(microservice))]
+        livenessProbe:
+          httpGet:
+            path: /[getHealthCapability(microservice).healthRoute/]
+            port: [microservice.port/]
+          initialDelaySeconds: [getHealthCapability(microservice).initialDelay/]
+          periodSeconds: [getHealthCapability(microservice).period/]
+[/if]
+[if (HasReadyCapability(microservice))]
+        readinessProbe:
+          httpGet:
+            path: /[getReadyCapability(microservice).readyRoute/]
+            port: [microservice.port/]
+          initialDelaySeconds: [getReadyCapability(microservice).initialDelay/]
+          periodSeconds: [getReadyCapability(microservice).period/]
+[/if]
+        env:
+        - name: PORT 
+          value: [microservice.port/]
+[for (databaseCapability : MongoDatabaseCapability | getMongoDBCapability(microservice))]
+        - name: MONGO_DB_URL
+          value: mongodb://[databaseCapability.oclAsType(MongoDatabaseCapability).username/]:[databaseCapability.oclAsType(MongoDatabaseCapability).password/]@[databaseCapability.oclAsType(MongoDatabaseCapability).host/]/[databaseCapability.oclAsType(MongoDatabaseCapability).databaseName/]
+[/for]
+[for (microservice_url : BackendMicroservice | MicroserviceRelations(microservice, environment.oclAsType(Environment)))]
+        - name: [microservice_url.oclAsType(Microservice).name.toUpper()/]_MICROSERVICE_URL
+          value: http://[microservice_url.oclAsType(Microservice).name.toLowerFirst()/].default.svc.cluster.local:[microservice_url.port/]
+[/for]
+[if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() > 0)]
+	[if (HasJWTCapability(microservice)<> false)]
+        - name: JWT_SECRET
+          value: [microservice.contained_capabilities -> selectByType(JWTCapability)->first().secret/]
+	[/if]
+[/if]
+
+
+[/file]
+[/template]

@@ -1,0 +1,6 @@
+[comment encoding = UTF-8 /]
+[module FrontendSelector('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+
+[template public frontendSelector(microservice: Microservice, environment: Provider)]
+
+[/template]

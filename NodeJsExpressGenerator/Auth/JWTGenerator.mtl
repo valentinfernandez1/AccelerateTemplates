@@ -1,0 +1,12 @@
+[comment encoding = UTF-8 /]
+[module JWTGenerator('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import NodeJsExpressGenerator::Auth::generateGenerateJWT /]
+[import NodeJsExpressGenerator::Auth::generateValidateJWT /]
+
+[template public JWTGenerator(jwtAuth: JWTCapability, microservice: BackendMicroservice, environment: Provider)]
+
+[generateGenerateJWT(jwtAuth, microservice, environment)/]
+[generateValidateJWT(jwtAuth, microservice, environment)/]
+
+[/template]

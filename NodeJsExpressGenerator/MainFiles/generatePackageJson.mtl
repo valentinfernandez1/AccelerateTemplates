@@ -1,0 +1,50 @@
+[comment encoding = UTF-8 /]
+[module generatePackageJson('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+
+[template public packageJsonGenerator(microservice: BackendMicroservice, environment: Provider)]
+[file (environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/package.json', false, 'UTF-8')]
+{
+  "name": "[microservice.oclAsType(Microservice).name.toLower()/]",
+  "version": "[microservice.oclAsType(Microservice).version/]",
+  "description": "[microservice.oclAsType(Microservice).description/]",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Accelerate",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+   	"cors": "*",
+    "dotenv": "*",
+    "express": "*",
+   	"morgan": "*",
+[comment capabilities section of package.json /]
+[for (capability : BackendCapability | microservice.contained_capabilities)]
+	[comment DatabaseCapabilities /]
+	[if (capability.oclIsKindOf(DatabaseCapability))]
+		[comment NoSQLDatabase /]
+		[if (capability.oclIsKindOf(NoSQLDatabaseCapability))]
+			[comment MongoDB Dependency /]
+			[if (capability.oclIsTypeOf(MongoDatabaseCapability))]
+   	"mongodb": "*",
+   	"mongoose": "*",
+			[/if]
+		[/if]
+		[comment SQLDatabase /]
+		[if (capability.oclIsKindOf(SQLDatabaseCapability))]
+		[/if]
+	[/if]
+	[comment AuthenticationCapability /]
+	[if (capability.oclIsKindOf(AuthenticationCapability))]
+		[if (capability.oclIsTypeOf(JWTCapability))]
+			  "jsonwebtoken": "^8.5.1",
+		[/if]
+	[/if]
+[/for]
+    "axios": "*"
+  }
+}
+[/file]
+[/template]

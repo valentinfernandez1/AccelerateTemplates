@@ -1,0 +1,20 @@
+[comment encoding = UTF-8 /]
+[module DeploymentConfigGenerator('http://www.example.org/accelerateMLI')]
+[import DeploymentConfigGenerator::GoogleDeploymentGenerator::GoogleDeploymentGenerator /]
+
+[template public DeploymentConfigGenerator(environment: Provider)]
+
+[if (environment.oclIsTypeOf(GoogleProvider))]
+	[GoogleDeploymentGenerator(environment)/]
+[/if]
+
+[if (environment.oclIsTypeOf(AWSProvider))]
+	[comment [AWSDeplymentGenerator(environment)/] /]
+	 
+[/if]
+
+[if (environment.oclIsTypeOf(AzureProvider))]
+	[comment [AzureDeplymentGenerator(environment)/] /]
+[/if]
+
+[/template]

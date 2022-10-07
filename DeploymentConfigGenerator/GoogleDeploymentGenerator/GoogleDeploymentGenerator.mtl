@@ -1,0 +1,9 @@
+[comment encoding = UTF-8 /]
+[module GoogleDeploymentGenerator('http://www.example.org/accelerateMLI')]
+[import DeploymentConfigGenerator::GoogleDeploymentGenerator::generateMain /]
+[import DeploymentConfigGenerator::GoogleDeploymentGenerator::generateVariables /]
+
+[template public GoogleDeploymentGenerator(environment: Provider)]
+[generateMain(environment)/]
+[generateVariables(environment)/]
+[/template]

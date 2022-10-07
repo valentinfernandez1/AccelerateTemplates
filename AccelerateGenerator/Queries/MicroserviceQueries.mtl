@@ -1,0 +1,20 @@
+[module MicroserviceQueries('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[query public NonAbstractClasses(microservice : Microservice) : Sequence(Class) = microservice.oclAsType(Diagram).contained_entityPackages -> first().oclAsType(EntityPackage).contained_classifiers.oclAsSet() -> selectByType(Class) -> select(entity | entity.isAbstract = false) /]
+
+[query public HasRoutesEntities(microservice : Microservice) : Sequence(Class) = microservice.oclAsType(Diagram).contained_entityPackages.oclAsType(EntityPackage).contained_classifiers -> selectByType(Class) -> select(entity | entity.oclAsType(Class).hasRoutes = true) /]
+
+[query public MicroserviceRelations(microservice : BackendMicroservice, environment: Environment) : OrderedSet(BackendMicroservice) = environment.oclAsType(Environment).contained_microservices->selectByType(BackendMicroservice)->select(m1 | m1 <> microservice)->select(m2 | microservice.oclAsType(Diagram).contained_entityPackages.oclAsType(EntityPackage).contained_classifiers.oclAsType(Class).contained_relations.eGet('destination')->any(d | m2.oclAsType(Diagram).contained_entityPackages.contained_classifiers->includes(d))->size() > 0) /]
+
+[query public HasJWTCapability(microservice : BackendMicroservice) : Boolean = microservice.contained_capabilities -> selectByKind(AuthenticationCapability)->first().oclIsTypeOf(JWTCapability) /]
+
+[query public HasReadyCapability(microservice : BackendMicroservice) : Boolean = (microservice.contained_capabilities->selectByType(ReadyCapability)->isEmpty()) <> true/]
+[query public getReadyCapability(microservice : BackendMicroservice) : ReadyCapability = microservice.contained_capabilities -> selectByType(ReadyCapability) -> first() /]
+
+[query public HasHealthCapability(microservice : BackendMicroservice) : Boolean = (microservice.contained_capabilities->selectByType(HealthCapability)->isEmpty()) <> true/]
+[query public getHealthCapability(microservice : BackendMicroservice) : HealthCapability = microservice.contained_capabilities -> selectByType(HealthCapability) -> first() /]
+
+[query public HasMongoDBCapability(microservice : BackendMicroservice) : Boolean = microservice.contained_capabilities -> selectByKind(DatabaseCapability)->first().oclIsTypeOf(MongoDatabaseCapability) <> false /]
+[query public getMongoDBCapability(microservice : BackendMicroservice) : OrderedSet(MongoDatabaseCapability) = microservice.contained_capabilities -> selectByType(MongoDatabaseCapability) /]
+
+[query public getMicroserviceKubernetesConfiguration(microservice : Microservice) : accelerateMLS::KubernetesConfiguration = microservice.contained_configurations->selectByType(accelerateMLS::KubernetesConfiguration)->first() /]

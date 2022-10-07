@@ -1,0 +1,65 @@
+[module EntityQueries('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[comment  
+	Obtiene todas las relaciones de una clase. 
+	Evita las Herencias
+/]
+[query public getEntityRelations(entity: Class) : Set(DirectionalRelation) = entity.contained_relations -> selectByType(DirectionalRelation) /]
+
+
+[comment 
+	Verifica si la relacion es externa al microservicio
+/]
+[query public isRelationExternal(relation: DirectionalRelation, environment : Environment, microservice: Microservice) : Boolean = (environment.oclAsType(Environment).contained_microservices->selectByType(BackendMicroservice)->select(m1 | m1 <> microservice)->select(m2 | m2.oclAsType(Diagram).contained_entityPackages.contained_classifiers->selectByType(Class)->includes(relation.oclAsType(DirectionalRelation).eGet('destination')))->size()>0) /]
+
+
+[comment  
+	Trae la herencia de la clase
+/]
+[query public getEntityInheritance(entity : Class) : Set(Inheritance) = entity.contained_relations -> selectByType(Inheritance) /]
+
+
+[comment  
+	Trae los atributos de la herencia asociada
+	a la clase
+/]
+[query public getInheritanceAttributes(entity:Class) : Set(Attribute)= entity.contained_relations -> selectByType(Inheritance) -> first().eGet('destination').oclAsType(Class).contained_attributes /]
+
+
+[comment  
+	Obtiene las relaciones contenidas
+	en la clase de la que hereda 
+/]
+[query public getInheritanceRelations(entity : Class) : Set(DirectionalRelation) = entity.contained_relations -> selectByType(Inheritance) -> first().eGet('destination').oclAsType(Class).contained_relations -> selectByType(DirectionalRelation) /]
+
+[comment  
+	Verifica si alguna relacion de la clase
+	apunta a un microservicio externo. Retorna un Booleano
+/]
+[query public existsExternalRelation(environment : Environment, microservice: Microservice) : Boolean = environment.oclAsType(Environment).contained_microservices->selectByType(BackendMicroservice)->select(m1 | m1 <> microservice)->select(m2 | microservice.oclAsType(Diagram).contained_entityPackages.oclAsType(EntityPackage).contained_classifiers.oclAsType(Class).contained_relations.destination->any(d | m2.oclAsType(Diagram).contained_entityPackages.contained_classifiers->includes(d))->size() > 0)->size() > 0 /]
+
+[comment  
+	Obtiene SOLO las relaciones de una clase
+	que apuntan a una clase en el mismo microservicio
+/]
+[query public getInternalClassRelation(entity: Class, environment : Environment, microservice: Microservice) : Sequence(Class) = environment.oclAsType(Environment).contained_microservices->selectByType(BackendMicroservice)->select(m1 | m1 = microservice).oclAsType(Diagram).contained_entityPackages.oclAsType(EntityPackage).contained_classifiers->selectByType(Class)->select(c | entity.oclAsType(Class).contained_relations -> selectByType(DirectionalRelation).eGet('destination')->includes(c)) /]
+
+[comment  
+	Obtiene SOLO las relaciones de la herencia de una clase
+	que apuntan a una clase en el mismo microservicio
+/]
+[query public getInternalClassRelationsForInheritance(entity: Class,environment : Environment, microservice: Microservice) : Sequence(Class) = environment.oclAsType(Environment).contained_microservices->selectByType(BackendMicroservice)->select(m1 | m1 = microservice).oclAsType(Diagram).contained_entityPackages.oclAsType(EntityPackage).contained_classifiers->selectByType(Class)->select(c | entity.oclAsType(Class).contained_relations -> selectByType(Inheritance).eGet('destination').eGet('contained_relations') -> selectByType(DirectionalRelation).eGet('destination')->includes(c)) /]
+
+[comment  
+	Obtiene las relaciones de una clase que apuntan
+	a una clase en un microservicio externo.
+/]
+[query public getExternalRelations(entity: Class,environment : Environment, microservice: Microservice) : Sequence(DirectionalRelation) = entity.oclAsType(Class).contained_relations-> union(getInheritanceRelations(entity)) ->asSequence() ->select(r | not microservice.oclAsType(Diagram).contained_entityPackages.contained_classifiers->includes(r.eGet('destination'))).oclAsType(DirectionalRelation) /]
+
+[comment  
+	Obtiene el microservicio en el que esta contenida
+	una clase asociada a una relacionDireccional
+/]
+[query public getMicroserviceOfRelation(relation: DirectionalRelation, environment: Environment, microservice : Microservice) : Microservice = environment.oclAsType(Environment).contained_microservices->select(m | m.oclAsType(Diagram).contained_entityPackages.contained_classifiers->any(c | c.oclAsType(Class) = relation.eGet('destination'))->size() > 0)->first() /]
+
+

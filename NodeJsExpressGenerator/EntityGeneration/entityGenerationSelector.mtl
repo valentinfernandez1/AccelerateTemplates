@@ -1,0 +1,45 @@
+[comment encoding = UTF-8 /]
+[module entityGenerationSelector('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import NodeJsExpressGenerator::EntityGeneration::generateEmptyController /]
+[import NodeJsExpressGenerator::EntityGeneration::MongoDBEntityGenerator::MongoDBEntityGenerator /]
+[import AccelerateGenerator::Queries::MicroserviceQueries /]
+[comment 
+	Para la generacion de entidades se debe seleccionar la base de datos
+	que los almacenara. Por lo que la funcion "entityGenerationSelector" 
+	encontrada a continuación es la encarga de esto.
+/]
+
+[template public entityGenerationSelector(microservice: BackendMicroservice, environment: Provider)]
+[comment 
+	El selector esta a cargo de direccionar al generador 
+	correspondiente a la base de datos seleccionada
+/]
+
+[comment "MongoDB Selector" /]
+[if (microservice.contained_capabilities -> selectByKind(DatabaseCapability)->size() > 0)]
+	[if (HasMongoDBCapability(microservice))]
+
+		[comment Se itera por cada entidad NO ABSTRACTA del microservicio y se la genera/]
+		[for (class : Class | NonAbstractClasses(microservice.oclAsType(Microservice)))]
+			[comment Si se selecciona MongoDB se dirige a esta funcion/]			
+			[MongoDBEntityGenerator(
+				class,
+				microservice,
+				environment
+			)/]
+			
+		[/for]
+
+	[/if]
+[else]
+
+[comment 
+	Si no hay capacidad de base de datos se generan controladores  
+	con funcionalidad a implementar por el desarrollador 
+/]
+[for (class : Class | NonAbstractClasses(microservice.oclAsType(Microservice)))]
+	[generateEmptyController(class.oclAsType(Classifier), microservice, environment)/]
+[/for]
+[/if]
+[/template]

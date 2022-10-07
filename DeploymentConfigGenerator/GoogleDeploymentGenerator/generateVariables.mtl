@@ -1,0 +1,26 @@
+[comment encoding = UTF-8 /]
+[module generateVariables('http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+
+
+[template public generateVariables(environment: Provider)]
+[file (environment.oclAsType(Environment).name + '/Deployment Config - Environment/variables.tf' , false, 'UTF-8')]
+variable "project_id" {
+  description = "The project ID to host the cluster in"
+  default     = "[environment.oclAsType(GoogleProvider).projectId/]"
+}
+variable "cluster_name" {
+  description = "The name for the GKE cluster"
+  default     = "[environment.oclAsType(Environment).name.toLowerFirst()/]"
+}
+variable "env_name" {
+  description = "The environment for the GKE cluster"
+  default     = "prod"
+}
+variable "region" {
+  description = "The region to host the cluster in"
+  default     = "[environment.oclAsType(GoogleProvider).region/]"
+}
+[/file]
+[/template]
+
+

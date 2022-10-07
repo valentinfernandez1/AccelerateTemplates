@@ -1,0 +1,6 @@
+[comment encoding = UTF-8 /]
+[module generateUtilityRoutes('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[template public generateUtilityRoutes(microservice: BackendMicroservice, environment: Provider)]
+
+[/template]

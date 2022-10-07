@@ -1,0 +1,16 @@
+[comment encoding = UTF-8 /]
+[module BackendSelector('http://www.example.org/accelerateMLS','http://www.example.org/accelerateMLI')]
+[import NodeJsExpressGenerator::NodeJsExpressGenerator /]
+
+[template public backendSelector(microservice: Microservice, environment: Provider)]
+[comment NodeJS - Express Template /]
+[if (microservice.oclAsType(BackendMicroservice).framework.toString() = 'NodeJsExpress')]
+	[nodeJsExpressGenerator(microservice.oclAsType(BackendMicroservice), environment)/]
+[/if]
+
+[comment Python Template /]
+[if (microservice.oclAsType(BackendMicroservice).framework.toString() = 'Python')]
+	
+[/if]
+
+[/template]

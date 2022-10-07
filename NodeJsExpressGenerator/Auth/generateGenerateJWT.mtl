@@ -1,0 +1,33 @@
+[comment encoding = UTF-8 /]
+[module generateGenerateJWT('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[template public generateGenerateJWT(jwtAuth: JWTCapability, microservice: BackendMicroservice, environment: Provider)]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/helpers/generateJWT.js'), false, 'UTF-8')]
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
+export default (finalToken) => {
+    return new Promise((resolve, reject) => {
+      const payload = { finalToken };
+
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "[jwtAuth.expiresIn/]",
+        },
+        (err, token) => {
+          if (err) {
+            console.log(err);
+            reject("Error Generating JWT");
+          } else {
+            resolve(token);
+          }
+        }
+      );
+    });
+};
+
+[/file]
+[/template]

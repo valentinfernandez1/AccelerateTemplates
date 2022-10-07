@@ -1,0 +1,6 @@
+[comment encoding = UTF-8 /]
+[module InfrastructureSelector('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+
+[template public infrastructureSelector(microservice: Microservice, environment: Provider)]
+
+[/template]

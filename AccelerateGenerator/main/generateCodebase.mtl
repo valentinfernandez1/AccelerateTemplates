@@ -1,0 +1,17 @@
+[comment encoding = UTF-8 /]
+[module generateCodebase('http://www.example.org/accelerateMLI')]
+[import MicroservicesGenerator::MicroservicesGenerator /]
+[import KubernetesConfigGenerator::KubernetesConfigGenerator /]
+[import DeploymentConfigGenerator::DeploymentConfigGenerator /]
+[import AccelerateGenerator::RecordGenerator::generateModelsRecord /]
+
+[template public generateCodebase(root : ProvidersDiagram)]
+[comment @main/]
+	[for (environment: Provider | root.contained_providers)]
+		[DeploymentConfigGenerator(environment)/]
+		[KubernetesConfigGenerator(environment)/]
+		[MicroserviceGenerator(environment)/]
+	[/for]
+
+	[generateModelsRecord(root)/]
+[/template]

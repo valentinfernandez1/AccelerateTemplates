@@ -1,0 +1,19 @@
+[comment encoding = UTF-8 /]
+[module generateEntityRoutes('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[template public generateEntityRoutes(entity: Class, microservice: BackendMicroservice, environment: Provider)]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/Routes/entityRoutes/'+entity.oclAsType(Classifier).name+'Route.js'), false, 'UTF-8'), false, 'UTF-8')]
+import { Router } from "express";
+import [entity.oclAsType(Classifier).name.toLowerFirst()/]Controller from "../../controllers/[entity.oclAsType(Classifier).name/]Controller.js";
+
+const router = Router();
+
+router.get("/[entity.oclAsType(Classifier).name.toLowerFirst()/]", [entity.oclAsType(Classifier).name.toLowerFirst()/]Controller.getAll);
+router.get("/[entity.oclAsType(Classifier).name.toLowerFirst()/]/:id", [entity.oclAsType(Classifier).name.toLowerFirst()/]Controller.getOneById);
+router.post("/[entity.oclAsType(Classifier).name.toLowerFirst()/]", [entity.oclAsType(Classifier).name.toLowerFirst()/]Controller.saveOne);
+router.put("/[entity.oclAsType(Classifier).name.toLowerFirst()/]/:id", [entity.oclAsType(Classifier).name.toLowerFirst()/]Controller.updateOneById);
+router.delete("/[entity.oclAsType(Classifier).name.toLowerFirst()/]/:id", [entity.oclAsType(Classifier).name.toLowerFirst()/]Controller.deleteOneById);
+
+export default router;
+[/file]
+[/template]

@@ -1,0 +1,77 @@
+[comment encoding = UTF-8 /]
+[module generateModels('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import AccelerateGenerator::Queries::EntityQueries /]
+
+[template public generateModels(entity: Class, microservice: BackendMicroservice, environment: Provider)]
+[comment 
+	Se genera el modelo en la ruta "./ambiente1/Microservices/microservicio1/src/Models/Ejemplo.js"
+ /]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/Models/'+entity.oclAsType(Classifier).name.toUpperFirst()+'.js'), false, 'UTF-8')]
+import mongoose from "mongoose";
+
+[comment 
+	El archivo debe definir la estructura de la entidad para guardar posteriormente en la base de datos.
+
+	Debe indicar todos los atributos y relaciones propias de la entidad y en caso de ser necesario de la 
+	entidad abstracta de la que hereda.
+ /]
+const [entity.oclAsType(Classifier).name/]Schema = new mongoose.Schema({
+
+[comment Primero se crean los atributos y relaciones de la clase a la que hereda si la hay /]
+[if ((getEntityInheritance(entity) -> isEmpty()) <> true)]
+	[for (inheritanceAttributes : Attribute | getInheritanceAttributes(entity))]
+	[inheritanceAttributes.name/]: {
+		type: [inheritanceAttributes.type.toString().toUpperFirst()/],
+		required: [inheritanceAttributes.required.toString()/],
+		unique: [inheritanceAttributes.isUnique.toString()/]
+	},
+	[/for]
+	[if ((getInheritanceRelations(entity) -> isEmpty()) <> true)]
+		[for (relation : DirectionalRelation |getInheritanceRelations(entity))]
+			[if (isRelationExternal(relation, environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+	[relation.relationName/]: {
+		type: String,
+		required: [relation.required.toString()/],
+		ref: "[relation.oclAsType(DirectionalRelation).eGet('destination').oclAsType(Class).eGet('name').toString().toUpperFirst()/]"
+	},
+			[else]
+	[relation.relationName/]: {
+		type: mongoose.Schema.Types.ObjectId,
+		required: [relation.required.toString()/],
+	},
+			[/if]
+		[/for]
+	[/if]
+[/if]
+
+[comment generacion de los atributos y relaciones propios de la entidad /]
+[for (entityAttribute : Attribute | entity.contained_attributes)]
+    [entityAttribute.name/]: {
+		type: [entityAttribute.type.toString().toUpperFirst()/],
+		required: [entityAttribute.required.toString()/],
+		unique: [entityAttribute.required.toString()/]
+	},
+[/for]
+[if ((getEntityRelations(entity) -> isEmpty()) <> true)]
+	[for (relation : DirectionalRelation | getEntityRelations(entity) )]
+		[if (isRelationExternal(relation, environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+    [relation.relationName/]: {
+		type: String,
+		required: [relation.required.toString()/],
+		ref: "[relation.oclAsType(DirectionalRelation).eGet('destination').oclAsType(Class).eGet('name').toString().toUpperFirst()/]"
+	},
+		[else]
+	[relation.relationName/]: {
+		type: mongoose.Schema.Types.ObjectId ,
+		required: [relation.required.toString()/],
+	},
+		[/if]
+	[/for]
+[/if]
+});
+
+export default mongoose.model("[entity.oclAsType(Classifier).name.toUpperFirst()/]", [entity.oclAsType(Classifier).name.toUpperFirst()/]Schema);
+
+[/file]
+[/template]

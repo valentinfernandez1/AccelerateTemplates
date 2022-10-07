@@ -1,0 +1,102 @@
+[comment encoding = UTF-8 /]
+[module generateControllers('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import AccelerateGenerator::Queries::EntityQueries /]
+
+[template public generateControllers(entity: Class, microservice: BackendMicroservice, environment: Provider)]
+
+[comment 
+	Se genera el controlador en la ruta "./ambiente1/Microservices/microservicio1/src/controllers/ejemploController.js"
+ /]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/controllers/'+entity.eGet('name')+'Controller.js'), false, 'UTF-8')]
+import [entity.eGet('name').toString().toUpperFirst()/] from "../Models/[entity.eGet('name').toString().toUpperFirst()/].js";
+
+[comment Si alguna entidad requiere comunicacion a otro microservicio se importan los modulos necesarios. /]
+[if (existsExternalRelation(environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+import axios from "axios";
+[/if]
+
+[comment 
+	Para cada entidad se generan 5 metodos: getAll, getOneById, saveOne, updateOne, deleteOneById.
+	Si se requiere traer informacion de sus relaciones tambien se agrega al metodo la logica para
+	realizarlo.
+ /]
+
+export default {
+  getAll: async (req, res, next) => {
+    try {
+      let list_[entity.eGet('name').toString().toLowerFirst()/] = await [entity.eGet('name').toString().toUpperFirst()/].find();
+      res.status(200).json(list_[entity.eGet('name').toString().toLowerFirst()/]);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  },
+
+  [comment 
+	Al buscar un elemento tambien se busca la informacion a las entidades relacionadas
+  	ya sea dentro del mismo microservicio o microservicios externos.
+  /]
+  getOneById: async (req, res, next) => {
+    const _id = req.params.id;
+    try {
+      let obtained[entity.eGet('name').toString().toUpperFirst()/] = await [entity.eGet('name').toString().toUpperFirst()/].findById(_id)
+	[for (microserviceRelation : Class | getInternalClassRelation(entity, environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+			.populate("[microserviceRelation.oclAsType(Classifier).name/]")
+	[/for]
+	[for (microserviceRelation : Class | getInternalClassRelationsForInheritance(entity, environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+			.populate("[microserviceRelation.oclAsType(Classifier).name/]")
+	[/for]
+			.exec().lean();
+
+	[for (relationToEntity : DirectionalRelation | getExternalRelations(entity, environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+			obtained[entity.eGet('name').toString().toUpperFirst()/].[relationToEntity.relationName/] = await axios.get(
+				process.env.[getMicroserviceOfRelation(relationToEntity, environment.oclAsType(Environment), microservice.oclAsType(Microservice)).name.toUpper()/]_MICROSERVICE_URL + "/api/entity/[relationToEntity.eGet('destination').eGet('name')/]"+[relationName/]
+			)
+			.then((responseData) => responseData.data)
+			.catch((e) => res.send(e));
+
+	[/for]
+      res.status(200).json(obtained[entity.eGet('name').toString().toUpperFirst()/]);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+
+  saveOne: async (req, res, next) => {
+	const req[entity.eGet('name').toString().toUpperFirst()/] = req.body.[entity.eGet('name')/];
+    
+    try {
+      const new[entity.eGet('name').toString().toUpperFirst()/] = await [entity.eGet('name').toString().toUpperFirst()/].create(req[entity.eGet('name').toString().toUpperFirst()/]);
+      res.json(new[entity.eGet('name').toString().toUpperFirst()/]);
+    } catch (err) {
+      res.status(500).json(err); 
+    }
+  },
+
+  updateOneById: async (req, res, next) => {
+    const _id = req.params.id;
+	const req[entity.eGet('name').toString().toUpperFirst()/] = req.body.[entity.eGet('name')/];
+
+    try {
+      let result = await [entity.eGet('name').toString().toUpperFirst()/].updateOne({ _id }, req[entity.eGet('name').toString().toUpperFirst()/]);
+      res.json(result);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  },
+
+  deleteOneById: async (req, res, next) => {
+    const _id = req.params.id;
+    try {
+      let result = await [entity.eGet('name').toString().toUpperFirst()/].deleteOne({ _id });
+      res.json(result);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+
+};
+[/file]
+[/template]

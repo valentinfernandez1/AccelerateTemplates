@@ -1,0 +1,33 @@
+[comment encoding = UTF-8 /]
+[module generateValidateJWT('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[template public generateValidateJWT(jwtAuth: JWTCapability, microservice: BackendMicroservice, environment: Provider)]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/middlewares/validateAuth.js'), false, 'UTF-8')]
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
+const validateAuth = async (req, res, next) => {
+  const jwt = req.header("jwt");
+
+  if (!token) {
+    return res.status(401).json({
+      msg: "No token was found in HTTP Request",
+    });
+  }
+
+  try {
+    jwt.verify(jwt, process.env.JWT_SECRET);
+    next();
+  } catch (error) {
+    console.log(error);
+    res.status(401).json({
+      msg: "Invalid token send",
+    });
+  }
+};
+
+export default validateAuth;
+
+[/file]
+[/template]

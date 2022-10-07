@@ -1,0 +1,36 @@
+[comment encoding = UTF-8 /]
+[module NodeJsExpressGenerator('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+[import NodeJsExpressGenerator::MainFiles::generateAppFile /]
+[import NodeJsExpressGenerator::MainFiles::generatePackageJson/]
+[import NodeJsExpressGenerator::MainFiles::generateDockerfile /]
+[import NodeJsExpressGenerator::MainFiles::generateGitIgnore /]
+[import NodeJsExpressGenerator::MainFiles::generateReadme /]
+[import NodeJsExpressGenerator::MainFiles::generateIndex /]
+
+[import NodeJsExpressGenerator::Routes::RoutesGenerator /]
+
+[import NodeJsExpressGenerator::EntityGeneration::entityGenerationSelector /]
+
+[import NodeJsExpressGenerator::Auth::AuthGenerationSelector /]
+
+
+[template public nodeJsExpressGenerator(microservice: BackendMicroservice, environment: Provider)]
+[comment Here every file for the microservice is generated based on the functions /]
+
+[packageJsonGenerator(microservice, environment)/]
+[dockerfileGenerator(microservice, environment)/]
+[gitIgnoreGenerator(microservice, environment)/]
+[readmeGenerator(microservice, environment)/]
+
+[indexGenerator(microservice, environment)/]
+[appfileGenerator(microservice, environment)/]
+[entityGenerationSelector(
+	microservice, 
+	environment)/]
+[routesGenerator(microservice, environment)/]
+
+[if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() > 0)]
+	[AuthGenerationSelector(microservice, environment)/]
+[/if]
+
+[/template] 

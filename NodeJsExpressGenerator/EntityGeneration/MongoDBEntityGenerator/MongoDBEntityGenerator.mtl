@@ -1,0 +1,26 @@
+[comment encoding = UTF-8 /]
+[module MongoDBEntityGenerator('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import NodeJsExpressGenerator::EntityGeneration::MongoDBEntityGenerator::generateModels /]
+[import NodeJsExpressGenerator::EntityGeneration::MongoDBEntityGenerator::generateControllers /]
+
+[comment Generacion de entidades para MongoDB /]
+[template public MongoDBEntityGenerator(entity: Class, microservice: BackendMicroservice, environment: Provider)]
+
+[comment  
+	Para MongoDB se requiere 2 modulos:
+		-Models: Encargados de definir la estructura con la que se guarda en la base de datos.
+		-Controllers: Encargados de brindar metodos de acceso y modificacion de datos.
+/]
+
+[generateModels(entity, microservice, environment)/]
+
+[comment 
+	Los Controllers solo son generados si la entidad fue marcada con el atributo "hasRoutes"
+ /]				
+[if (entity.hasRoutes = true)]
+	[generateControllers(entity.oclAsType(Class), microservice, environment)/]
+[/if]
+
+
+[/template]

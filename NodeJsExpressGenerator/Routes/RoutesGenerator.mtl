@@ -1,0 +1,28 @@
+[comment encoding = UTF-8 /]
+[module RoutesGenerator('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import NodeJsExpressGenerator::Routes::generateRoutesIndex /]
+[import NodeJsExpressGenerator::Routes::generateEntityRoutes /]
+[import NodeJsExpressGenerator::Routes::generateNamespaceRoutes /]
+[import NodeJsExpressGenerator::Routes::generateUtilityRoutes /]
+
+[import AccelerateGenerator::Queries::MicroserviceQueries /]
+
+[template public routesGenerator(microservice: BackendMicroservice, environment: Provider)]
+
+[comment "The routes folder is generated in this module" /]
+
+[generateRoutesIndex(microservice, environment)/]
+[for (entity : Class | HasRoutesEntities(microservice.oclAsType(Microservice)))]
+	[generateEntityRoutes(entity,microservice, environment)/]
+[/for]
+[for (namespace : Namespace | microservice.oclAsType(Diagram).contained_namespaces )]
+	[for (resource : RESTResource | namespace.oclAsType(RESTNamespace).contained_resources)]
+		[generateNamespaceRoutes(resource, namespace, microservice, environment)/]
+	[/for]
+[/for]
+
+[comment [generateUtilityRoutes(microservice, environment)/]
+
+
+[/template]

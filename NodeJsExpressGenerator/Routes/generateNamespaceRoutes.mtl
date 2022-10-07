@@ -1,0 +1,27 @@
+[comment encoding = UTF-8 /]
+[module generateNamespaceRoutes('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[template public generateNamespaceRoutes(resource: RESTResource, namespace: Namespace, microservice: BackendMicroservice, environment: Provider)]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/Routes/'+namespace.name+'Routes/'+resource.name+'Route.js'), false, 'UTF-8'), false, 'UTF-8')]
+import { Router } from "express";
+[if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> isEmpty() <> true)]
+	[if ((self.contained_routes -> select(x| x.oclAsType(RESTRoute).requiresAuth) -> isEmpty() <> true))]
+	import validateAuth from "../../middlewares/validateAuth.js";
+	[/if]
+[/if]
+
+const router = Router();
+
+[for (route : RESTRoute | self.contained_routes -> selectByType(RESTRoute))]
+router.[route.httpMethod.toString().toLower()/]("[if (route.pathExtension.toString() <> '/')][route.pathExtension/][/if][if (route.parameters <> null)]/:[route.parameters/][/if]",
+[if (route.requiresAuth)][if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() = 0)]/*autenticationMiddleware,*/
+[else]
+	[ '[' /]validateAuth[ ']' /],
+  	[/if]
+[/if]  (req, res)=>{res.send('NOT IMPLEMENTED')});
+
+[/for]
+
+export default router;
+[/file]
+[/template]

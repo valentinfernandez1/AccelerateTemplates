@@ -1,0 +1,16 @@
+[comment encoding = UTF-8 /]
+[module generateDockerfile('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+
+[template public dockerfileGenerator(microservice: BackendMicroservice, environment: Provider)]
+[file (environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/Dockerfile', false, 'UTF-8')]
+FROM node:16
+
+COPY . .
+
+RUN npm install
+
+EXPOSE 8002
+
+CMD [ '["npm", "start"]' /]
+[/file]
+[/template]

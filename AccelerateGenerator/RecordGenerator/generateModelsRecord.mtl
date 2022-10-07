@@ -1,0 +1,29 @@
+[comment encoding = UTF-8 /]
+[module generateModelsRecord('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import AccelerateGenerator::Queries::EntityQueries /]
+
+[template public generateModelsRecord(root: ProvidersDiagram)]
+[file ('modelRecord.json' , false, 'UTF-8')]
+{
+  "environments": [ '[' /][for (environment: Provider | root.contained_providers) separator (',')]"[environment.eClass().name.toString()/]"[/for][ ']' /],
+  "backendMicroservices": [ '[' /][for (microservice : BackendMicroservice | root.contained_providers.eGet('contained_microservices') -> selectByType(BackendMicroservice)) separator (',')]
+    {
+      "framework": "[microservice.framework.toString()/]",
+      "capabilities":[ '[' /] [for (capability : BackendCapability | microservice.contained_capabilities) separator (',')]"[capability.eClass().name.toString()/]"[/for] [ ']' /],
+      "amountEntities": [microservice.oclAsType(Diagram).contained_entityPackages.contained_classifiers -> size()/],
+      "amountRoutes": [microservice.oclAsType(Diagram).contained_namespaces.oclAsType(RESTNamespace).contained_resources.contained_routes -> size()/]
+    }[/for]
+  [ ']' /],
+  "entities":[ '[' /]
+[for (class : Class | root.contained_providers.eGet('contained_microservices') -> selectByType(BackendMicroservice).eGet('contained_entityPackages').eGet('contained_classifiers') -> selectByType(Class)) separator (',')]
+    
+    {
+      "amountAtributes":[class.contained_attributes -> size()/],
+      "amountRelations":[class.contained_relations -> size()/]
+    }[/for]
+  
+  [ ']' /] 
+}
+[/file]
+[/template]

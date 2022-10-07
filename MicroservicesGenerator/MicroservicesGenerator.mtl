@@ -1,0 +1,28 @@
+[comment encoding = UTF-8 /]
+[module MicroservicesGenerator('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+[import MicroservicesGenerator::BackendSelector /]
+[import MicroservicesGenerator::FrontendSelector /]
+[import MicroservicesGenerator::InfrastructureSelector /]
+
+[template public MicroserviceGenerator(environment: Provider)]
+
+[for (microservice :  Microservice| environment.oclAsType(Environment).contained_microservices)]
+	[comment Functional Microservices /]
+	[if (microservice.oclIsKindOf(FunctionalMicroservice))]
+		[comment Backend Microservices /]	
+		[if (microservice.oclIsTypeOf(BackendMicroservice))]
+			[backendSelector(microservice, environment)/]
+		[/if]
+		[comment Frontend Microservices /]
+		[if (microservice.oclIsTypeOf(FrontendMicroservice))]
+			[frontendSelector(microservice, environment)/]
+		[/if]
+	[/if]
+	
+	[comment Infrastructure Microservices /]
+	[if (microservice.oclIsKindOf(InfrastructureMicroservice))]
+		[infrastructureSelector(microservice, environment)/]
+	[/if]
+[/for]
+
+[/template]

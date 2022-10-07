@@ -1,0 +1,19 @@
+[comment encoding = UTF-8 /]
+[module KubernetesConfigGenerator('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+[import KubernetesConfigGenerator::generateIngress /]
+[import KubernetesConfigGenerator::generateDeployment /]
+[import KubernetesConfigGenerator::generateService /]
+
+[import AccelerateGenerator::Queries::MicroserviceQueries /]
+
+[template public KubernetesConfigGenerator(environment: Provider)]
+
+	[generateIngress(environment)/]
+	
+[for (microservice : Microservice | environment.oclAsType(Environment).contained_microservices)]
+	[generateDeployment(environment, microservice.oclAsType(BackendMicroservice), getMicroserviceKubernetesConfiguration(microservice))/]
+	[generateService(environment, microservice) /]
+[/for]
+	
+
+[/template]

@@ -1,0 +1,27 @@
+[comment encoding = UTF-8 /]
+[module generateIndex('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+[import NodeJsExpressGenerator::MainFiles::MongoDBconnection::generateMongoDBconnection /]
+
+
+[template public indexGenerator(microservice: BackendMicroservice, environment: Provider)]
+[file (environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/index.js', false, 'UTF-8')]
+import app from "./app.js";
+[comment MongoDB Connection /]
+[if ((microservice.contained_capabilities -> selectByType(MongoDatabaseCapability) -> isEmpty()) = false)]
+import dotenv from "dotenv";
+import DBconnection from "./src/utils/db.js";
+
+dotenv.config();
+const mongoDB = process.env.MONGO_DB_URL; 
+
+DBconnection(mongoDB);
+[generateMongoDBconnection(microservice, environment)/]
+[/if]
+
+app.listen(app.get("port"), () => {
+    console.log(`\n  Server: http://localhost:${app.get("port")} \n`);
+});
+
+
+[/file]
+[/template]
