@@ -13,6 +13,7 @@
 
 [import NodeJsExpressGenerator::Auth::AuthGenerationSelector /]
 
+[import MicroservicesGenerator::common::generateGitHubActions /]
 
 [template public nodeJsExpressGenerator(microservice: BackendMicroservice, environment: Provider)]
 [comment Here every file for the microservice is generated based on the functions /]
@@ -32,5 +33,7 @@
 [if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() > 0)]
 	[AuthGenerationSelector(microservice, environment)/]
 [/if]
+
+[generateGitHubActions('/', microservice, environment)/]
 
 [/template] 

@@ -1,0 +1,32 @@
+[comment encoding = UTF-8 /]
+[module generateGitHubActions('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[template public generateGitHubActions(path: String, microservice: BackendMicroservice, environment: Provider)]
+
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+path+'githubActions.yml'), false, 'UTF-8')]
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ '[' /]main[ ']' /] 
+  pull_request:
+    branches: [ '[' /]main[ ']' /]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --tag=[environment.secretId/]/[microservice.name/]:latest
+    - uses: docker/login-action@v1 
+      with:
+        username: ${{ secrets.DOCKER_LOGIN_USERNAME }}
+        password: ${{ secrets.DOCKER_LOGIN_PASSWORD }}
+    - name: Push the Docker image
+      run: docker push [environment.secretId/]/[microservice.name.toLowerCase()/]:latest
+[/file]
+[/template]
