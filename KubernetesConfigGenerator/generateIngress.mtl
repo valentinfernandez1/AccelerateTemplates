@@ -13,16 +13,16 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-  - http:
+    http:
       paths:
 [for (microservice : Microservice | environment.oclAsType(Environment).contained_microservices)]
       - path: /[microservice.name.toLowerFirst()/](/|$)(.*)
-          pathType: Prefix
-          backend:
-            service:
-              name: [microservice.name.toLowerFirst()/]
-              port:
-                number: [microservice.oclAsType(BackendMicroservice).port/]
+        pathType: Prefix
+        backend:
+          service:
+            name: [microservice.name.toLowerFirst()/]
+            port:
+              number: [microservice.oclAsType(BackendMicroservice).port/]
 [/for]
 [/file]
 [/template]

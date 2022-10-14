@@ -54,7 +54,7 @@ spec:
 [/if]
         env:
         - name: PORT 
-          value: [microservice.port/]
+          value: "[microservice.port/]"
 [for (databaseCapability : MongoDatabaseCapability | getMongoDBCapability(microservice))]
         - name: MONGO_DB_URL
           value: mongodb://[databaseCapability.oclAsType(MongoDatabaseCapability).username/]:[databaseCapability.oclAsType(MongoDatabaseCapability).password/]@[databaseCapability.oclAsType(MongoDatabaseCapability).host/]/[databaseCapability.oclAsType(MongoDatabaseCapability).databaseName/]
