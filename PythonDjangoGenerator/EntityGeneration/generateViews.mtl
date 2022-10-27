@@ -1,0 +1,27 @@
+[comment encoding = UTF-8 /]
+[module generateViews('http://www.example.org/accelerateMLC', 'http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+[import AccelerateGenerator::Queries::EntityQueries /]
+
+[template public generateViews(entity: Class, microservice: BackendMicroservice, environment: Provider)]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/views/entityViews/'+entity.eGet('name')+'View.py'), false, 'UTF-8')]
+from ..models.[entity.name.toUpperFirst()/] import [entity.name.toUpperFirst()/]
+from ..serializers.[entity.name.toUpperFirst()/]Serializer import [entity.name.toUpperFirst()/]Serializer
+from rest_framework import viewsets
+
+[comment Si alguna entidad requiere comunicacion a otro microservicio se importan los modulos necesarios. /]
+[if (existsExternalRelation(environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+from rest_framework import status
+from rest_framework.response import Response
+from [microservice.name/].settings import env
+from requests.api import get
+[/if]
+
+class [entity.name.toUpperFirst()/]ViewSet(viewsets.ModelViewSet):
+  queryset = [entity.name.toUpperFirst()/].objects.all()
+  serializer_class = [entity.name.toUpperFirst()/]Serializer
+
+
+
+
+[/file]
+[/template]

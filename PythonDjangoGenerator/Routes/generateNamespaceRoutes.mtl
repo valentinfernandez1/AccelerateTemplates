@@ -1,0 +1,11 @@
+[comment encoding = UTF-8 /]
+[module generateNamespaceRoutes('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[template public generateNamespaceRoutes(resource: RESTResource, namespace: Namespace, microservice: BackendMicroservice, environment: Provider)]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/routes/'+namespace.name+'Routes/'+resource.name+'Route.py'), false, 'UTF-8'), false, 'UTF-8')]
+from ...views.[namespace.name/]Views import [resource.name.toLowerFirst()/]View
+from ..indexRoutes import router[namespace.name.toUpperFirst()/]
+
+router[namespace.name.toUpperFirst()/].register('[resource.name.toLower()/]', [resource.name.toLowerFirst()/]View.[resource.name.toLower()/], basename='[resource.name.toLower()/]')
+[/file]
+[/template]

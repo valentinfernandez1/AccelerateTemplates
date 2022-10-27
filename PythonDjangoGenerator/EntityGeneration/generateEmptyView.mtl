@@ -1,0 +1,40 @@
+[comment encoding = UTF-8 /]
+[module generateEmptyView('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+
+[comment En caso de que no se seleccione una base de datos se generan Views vacios
+  		 para ser implementados posteriormente por el desarrollador./]
+[template public generateEmptyView(entity: Classifier, microservice: BackendMicroservice, environment: Provider)]
+
+[comment Se genera el controlador en la ruta "./ambiente1/Microservices/microservicio1/src/controllers/ejemploController.js"/]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/views/'+entity.name+'View.py'), false, 'UTF-8'), false, 'UTF-8')]
+
+[comment Se proveen los metodos de acceso getAll, getOneById, saveOne, updateOneById, deleteOneById
+	     pero su unica funcionalidad es indicar que aun no han sido implementados. /]
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+
+class [entity.name/](viewsets.ViewSet):
+    
+    # getAll
+    def list(self, request, format=None):
+        return Response('Route --getAll-- for [entity.name/] not Implemented',status=status.HTTP_200_OK)
+    
+    # getOneById
+    def retrieve(self, request, pk=None):
+        return Response('Route --getOneById-- for [entity.name/] not Implemented',status=status.HTTP_200_OK)
+
+    # saveOne
+    def create(self, request):
+        return Response('Route --saveOne-- for [entity.name/] not Implemented',status=status.HTTP_200_OK)
+    
+    # updateOneById
+    def update(self, request, pk=None):
+        return Response('Route --updateOneById-- for [entity.name/] not Implemented',status=status.HTTP_200_OK)
+
+    # deleteOneById
+    def destroy(self, request, pk=None):
+        return Response('Route --deleteOneById-- for [entity.name/] not Implemented',status=status.HTTP_200_OK)
+
+[/file]
+[/template]

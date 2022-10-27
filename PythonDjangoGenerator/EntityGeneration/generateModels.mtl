@@ -1,0 +1,103 @@
+[comment encoding = UTF-8 /]
+[module generateModels('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import AccelerateGenerator::Queries::EntityQueries /]
+
+[template public generateModels(entity: Class, microservice: BackendMicroservice, environment: Provider)]
+[comment 
+	Se genera el modelo en la ruta "./ambiente1/Microservices/microservicio1/src/models/Ejemplo.py"
+ /]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/models/'+entity.oclAsType(Classifier).name.toUpperFirst()+'.py'), false, 'UTF-8')]
+from django.db import models
+[if ((getEntityInheritance(entity) -> isEmpty()) <> true)]
+	[if ((getInheritanceRelations(entity) -> isEmpty()) <> true)]
+		[for (relation : DirectionalRelation |getInheritanceRelations(entity))]
+			[if (isRelationExternal(relation, environment.oclAsType(Environment), microservice.oclAsType(Microservice)) <> true)]
+import [relation.destination.name.toString()/]
+			[/if]
+		[/for]
+
+	[/if]
+[/if]
+[if (entity.contained_relations -> size() > 0)]
+	[for (relation : DirectionalRelation | getEntityRelations(entity) )]
+		[if (isRelationExternal(relation, environment.oclAsType(Environment), microservice.oclAsType(Microservice)) <> true)]
+import [relation.destination.name.toString()/]
+		[/if]
+	[/for]
+[/if]
+
+class [entity.oclAsType(Classifier).name.toUpperFirst()/](models.Model):
+
+[comment Primero se crean los atributos y relaciones de la clase a la que hereda si la hay /]
+[if ((getEntityInheritance(entity) -> isEmpty()) <> true)]
+	[for (inheritanceAttributes : Attribute | getInheritanceAttributes(entity))]
+		[if (inheritanceAttributes.type.toString() = 'string')]
+    [inheritanceAttributes.name/] = models.CharField(max_length=100[if (inheritanceAttributes.required.toString() = 'false')], null=True, blank=True[/if][if (inheritanceAttributes.isUnique.toString() = 'true')], unique=True[/if])
+		[elseif (inheritanceAttributes.type.toString() = 'date')]
+	[inheritanceAttributes.name/] = models.DateField(auto_now=False, auto_now_add=False[if (inheritanceAttributes.required.toString() = 'false')], null=True, blank=True[/if][if (inheritanceAttributes.isUnique.toString() = 'true')], unique=True[/if])
+		[elseif (inheritanceAttributes.type.toString() = 'integer')]
+	[inheritanceAttributes.name/] = models.IntegerField(default=0[if (inheritanceAttributes.required.toString() = 'false')], null=True, blank=True[/if][if (inheritanceAttributes.isUnique.toString() = 'true')], unique=True[/if])
+		[elseif (inheritanceAttributes.type.toString() = 'boolean')]
+	[inheritanceAttributes.name/] = models.BooleanField([if (inheritanceAttributes.required.toString() = 'false')]null=True, blank=True[/if][if (inheritanceAttributes.isUnique.toString() = 'true')], unique=True[/if])
+		[elseif (inheritanceAttributes.type.toString() = 'double')]
+	[inheritanceAttributes.name/] = models.DecimalField(max_digits=6, decimal_places=6, default=None[if (inheritanceAttributes.required.toString() = 'false')], null=True, blank=True[/if][if (inheritanceAttributes.isUnique.toString() = 'true')], unique=True[/if])
+		[/if]
+	[/for]
+	[if ((getInheritanceRelations(entity) -> isEmpty()) <> true)]
+		[for (relation : DirectionalRelation |getInheritanceRelations(entity))]
+			[if (isRelationExternal(relation, environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+    [relation.relationName/] = models.CharField(max_length=100[if (relation.required.toString() = 'false')], null=True, blank=True[/if])
+		[elseif (relation.relationType.toString() = 'oneToOne')]
+	[relation.relationName/] = models.OneToOneField([relation.oclAsType(DirectionalRelation).destination.oclAsType(Class).name.toString()/], on_delete=models.CASCADE)
+		[elseif (relation.relationType.toString() = 'manyToOne')]
+ 	[relation.relationName/] = models.ForeignKey([relation.oclAsType(DirectionalRelation).destination.oclAsType(Class).name.toString()/], on_delete=models.CASCADE)
+		[elseif (relation.relationType.toString() = 'oneToMany')]
+	[relation.relationName/] = models.
+		[elseif (relation.relationType.toString() = 'manyToMany')]
+	[relation.relationName/] = models.ManyToManyField(([relation.oclAsType(DirectionalRelation).destination.oclAsType(Class).name.toString()/], on_delete=models.CASCADE)
+			[/if]
+		[/for]
+	[/if]
+[/if]
+[comment generar atributos y relaciones propios de la entidad/]
+[for (entityAttribute : Attribute | entity.contained_attributes)]
+	[if (entityAttribute.type.toString() = 'string')]
+    [entityAttribute.name/] = models.CharField(max_length=100[if (entityAttribute.required.toString() = 'false')], null=True, blank=True[/if][if (entityAttribute.isUnique.toString() = 'true')], unique=True[/if])
+	[elseif (entityAttribute.type.toString() = 'date')]
+	[entityAttribute.name/] = models.DateField(auto_now=False, auto_now_add=False[if (entityAttribute.required.toString() = 'false')], null=True, blank=True[/if][if (entityAttribute.isUnique.toString() = 'true')], unique=True[/if])
+	[elseif (entityAttribute.type.toString() = 'integer')]
+	[entityAttribute.name/] = models.IntegerField(default=0[if (entityAttribute.required.toString() = 'false')], null=True, blank=True[/if][if (entityAttribute.isUnique.toString() = 'true')], unique=True[/if])
+	[elseif (entityAttribute.type.toString() = 'boolean')]
+	[entityAttribute.name/] = models.BooleanField([if (entityAttribute.required.toString() = 'false')]null=True, blank=True[/if][if (entityAttribute.isUnique.toString() = 'true')], unique=True[/if])
+	[elseif (entityAttribute.type.toString() = 'double')]
+	[entityAttribute.name/] = models.DecimalField(max_digits=6, decimal_places=6, default=None[if (entityAttribute.required.toString() = 'false')], null=True, blank=True[/if][if (entityAttribute.isUnique.toString() = 'true')], unique=True[/if])
+	[/if]
+[/for]	
+[if ((getEntityRelations(entity) -> isEmpty()) <> true)]
+	[for (relation : DirectionalRelation | getEntityRelations(entity) )]
+		[if (isRelationExternal(relation, environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+    [relation.relationName/] = models.CharField(max_length=100[if (relation.required.toString() = 'false')], null=True, blank=True[/if])
+		[elseif (relation.relationType.toString() = 'oneToOne')]
+	[relation.relationName/] = models.OneToOneField([relation.oclAsType(DirectionalRelation).destination.oclAsType(Class).name.toString()/], on_delete=models.CASCADE)
+		[elseif (relation.relationType.toString() = 'manyToOne')]
+ 	[relation.relationName/] = models.ForeignKey([relation.oclAsType(DirectionalRelation).destination.oclAsType(Class).name.toString()/], on_delete=models.CASCADE)
+		[elseif (relation.relationType.toString() = 'oneToMany')]
+	[relation.relationName/] = models.ForeignKey([relation.oclAsType(DirectionalRelation).destination.oclAsType(Class).name.toString()/], on_delete=models.CASCADE)
+		[elseif (relation.relationType.toString() = 'manyToMany')]
+	[relation.relationName/] = models.ManyToManyField(([relation.oclAsType(DirectionalRelation).destination.oclAsType(Class).name.toString()/], on_delete=models.CASCADE)
+		[/if]
+	[/for]
+[/if]
+
+[comment genera Metadata de cada modelo/]
+    class Meta:
+	    verbose_name = '[entity.oclAsType(Classifier).name.toUpperFirst()/]'
+	    verbose_name_plural = '[entity.oclAsType(Classifier).name.toUpperFirst()/]'
+	    ordering = ['['/]'[entity.contained_attributes -> first().name.toString()/]'[']'/]
+    
+    def __str__(self):
+        return self.[entity.contained_attributes -> first().name.toString()/]
+
+[/file]
+[/template]

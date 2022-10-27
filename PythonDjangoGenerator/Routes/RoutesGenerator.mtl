@@ -1,0 +1,30 @@
+[comment encoding = UTF-8 /]
+[module RoutesGenerator('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import PythonDjangoGenerator::Routes::generateIndexRoutes /]
+[import PythonDjangoGenerator::Routes::generateInit/]
+[import PythonDjangoGenerator::Routes::generateEntityRoutes /]
+[import PythonDjangoGenerator::Routes::generateNamespaceRoutes /]
+[import PythonDjangoGenerator::Routes::generateResourceViews /]
+
+[import AccelerateGenerator::Queries::MicroserviceQueries /]
+
+[template public routesGenerator(microservice: BackendMicroservice, environment: Provider)]
+
+[comment "The routes folder is generated in this module" /]
+
+[generateIndexRoutes(microservice, environment)/]
+[generateInit(microservice, environment)/]
+[for (entity : Class | HasRoutesEntities(microservice.oclAsType(Microservice)))]
+	[generateEntityRoutes(entity,microservice, environment)/]
+[/for]
+[for (namespace : Namespace | microservice.oclAsType(Diagram).contained_namespaces )]
+	[for (resource : RESTResource | namespace.oclAsType(RESTNamespace).contained_resources)]
+		[generateNamespaceRoutes(resource, namespace, microservice, environment)/]
+		[generateResourceViews(resource, namespace, microservice, environment)/]
+	[/for]
+[/for]
+
+
+
+[/template]

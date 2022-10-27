@@ -1,0 +1,9 @@
+[comment encoding = UTF-8 /]
+[module generateGitIgnore('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+
+[template public gitIgnoreGenerator(microservice: BackendMicroservice, environment: Provider)]
+[file (environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/.gitignore', false, 'UTF-8')]
+env/
+.env
+[/file]
+[/template]

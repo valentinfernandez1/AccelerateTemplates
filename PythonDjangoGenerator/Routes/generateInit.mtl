@@ -1,0 +1,26 @@
+[comment encoding = UTF-8 /]
+[module generateInit('http://www.example.org/accelerateMLC', 'http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+
+
+[template public generateInit(microservice: BackendMicroservice, environment: Provider)]
+[file (environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/routes/__init__.py', false, 'UTF-8')]
+[comment  import Entities Routers/]
+[for (entityPackage : EntityPackage | microservice.oclAsType(Diagram).contained_entityPackages )]
+# import [entityPackage.name/]
+	[for (class : Class | microservice.oclAsType(Diagram).contained_entityPackages.contained_classifiers.oclAsType(Class) )]
+from .[entityPackage.name.toLower()/]Routes.[class.name.toUpperFirst()/]Route import router[entityPackage.name.toUpperFirst()/]
+	[/for]
+[/for]
+
+[comment  Namespaces Routers/]
+[for (namespace : RESTNamespace | microservice.oclAsType(Diagram).contained_namespaces.oclAsType(RESTNamespace))]
+# import [namespace.name/]
+	[for (resource : RESTResource | namespace.contained_resources)]
+from .[namespace.name.toLowerFirst()/]Routes.[resource.name.toLower()/]Route import router[namespace.name.toUpperFirst()/]
+	[/for]
+
+[/for]
+
+[/file]
+[/template]
+

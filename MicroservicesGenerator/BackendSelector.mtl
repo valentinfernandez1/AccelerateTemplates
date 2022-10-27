@@ -1,6 +1,7 @@
 [comment encoding = UTF-8 /]
 [module BackendSelector('http://www.example.org/accelerateMLS','http://www.example.org/accelerateMLI')]
 [import NodeJsExpressGenerator::NodeJsExpressGenerator /]
+[import PythonDjangoGenerator::PythonDjangoGenerator /]
 
 [template public backendSelector(microservice: Microservice, environment: Provider)]
 [comment NodeJS - Express Template /]
@@ -9,8 +10,8 @@
 [/if]
 
 [comment Python Template /]
-[if (microservice.oclAsType(BackendMicroservice).framework.toString() = 'Python')]
-	
+[if (microservice.oclAsType(BackendMicroservice).framework.toString() = 'PythonDjango')]
+	[pythonDjangoGenerator(microservice.oclAsType(BackendMicroservice), environment)/]
 [/if]
 
 [/template]

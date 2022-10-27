@@ -1,0 +1,17 @@
+[comment encoding = UTF-8 /]
+[module generateSerializers('http://www.example.org/accelerateMLC', 'http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+
+
+[template public generateSerializers(entity: Class, microservice: BackendMicroservice, environment: Provider)]
+
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/serializers/'+entity.oclAsType(Classifier).name.toUpperFirst()+'Serializer.py'), false, 'UTF-8')]
+from ..models.[entity.name.toUpperFirst()/] import [entity.name.toUpperFirst()/]
+from rest_framework import serializers
+
+class [entity.name.toUpperFirst()/]Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = [entity.name.toUpperFirst()/]
+        fields = '__all__'
+
+[/file]
+[/template]

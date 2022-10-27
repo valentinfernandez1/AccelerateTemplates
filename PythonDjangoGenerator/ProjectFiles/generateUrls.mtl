@@ -1,0 +1,40 @@
+[comment encoding = UTF-8 /]
+[module generateUrls('http://www.example.org/accelerateMLC', 'http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+
+
+[template public generateUrls(microservice: BackendMicroservice, environment: Provider)]
+
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/'+microservice.oclAsType(Microservice).name+'/'+'urls.py'), false, 'UTF-8'), false, 'UTF-8')]
+from django.contrib import admin
+from django.urls import path, include
+from rest_framework import  status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from src.routes.indexRoutes import [for ( entityPackage : EntityPackage| self.contained_entityPackages)separator (',')]router[entityPackage.name.toUpperFirst()/][/for],[for ( namespace : Namespace| self.contained_namespaces)separator (',')] router[namespace.name.toUpperFirst()/][/for]
+
+
+class index(APIView):
+    def get(self, request, format=None):
+      return Response('',status=status.HTTP_200_OK)
+
+class health(APIView):
+    def get(self, request, format=None):
+      return Response('ok',status=status.HTTP_200_OK)
+
+
+urlpatterns = ['['/]
+  path('', index.as_view(), name='index'),
+  path('health/', health.as_view(), name='health'),
+  [for ( entityPackage : EntityPackage| self.contained_entityPackages)]
+  path('api/[entityPackage.name.toLower()/]/', include(router[entityPackage.name.toUpperFirst()/].urls)),
+  [/for]
+  [for ( namespace : Namespace| self.contained_namespaces)] 
+  path('api/[namespace.name.toLower()/]/', include(router[namespace.name.toUpperFirst()/].urls)),
+  [/for]
+  path('admin/', admin.site.urls)
+[']'/]
+
+[/file]
+
+[/template]

@@ -1,0 +1,16 @@
+[comment encoding = UTF-8 /]
+[module generateAsgi('http://www.example.org/accelerateMLC', 'http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+
+
+[template public generateAsgi(microservice: BackendMicroservice, environment: Provider)]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/'+microservice.oclAsType(Microservice).name+'/asgi.py'), false, 'UTF-8'), false, 'UTF-8')]
+import os
+
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', '[microservice.name/].settings')
+
+application = get_asgi_application()
+
+[/file]
+[/template]

@@ -1,0 +1,16 @@
+[comment encoding = UTF-8 /]
+[module generateWsgi('http://www.example.org/accelerateMLC', 'http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+
+
+[template public generateWsgi(microservice: BackendMicroservice, environment: Provider)]
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/'+microservice.oclAsType(Microservice).name+'/wsgi.py'), false, 'UTF-8'), false, 'UTF-8')]
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', '[microservice.name/].settings')
+
+application = get_wsgi_application()
+
+[/file]
+[/template]

@@ -1,0 +1,13 @@
+[comment encoding = UTF-8 /]
+[module generateReadme('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS')]
+
+[template public readmeGenerator(microservice: BackendMicroservice, environment: Provider)]
+[file (environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/README.md', false, 'UTF-8')]
+#[microservice.oclAsType(Microservice).name/] Microservice
+###### This microservice is part of the [environment.oclAsType(Environment).name/] Environment
+The code contained in this repo whas generated using accelerate automatic code generator.
+
+To start the microservice first run `pip install -r requirements.txt` to install the project dependencies.
+Next run `python manage.py runserver` to start the server.
+[/file]
+[/template]

@@ -1,0 +1,44 @@
+[comment encoding = UTF-8 /]
+[module entityGenerator('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
+
+[import PythonDjangoGenerator::EntityGeneration::generateModels /]
+[import PythonDjangoGenerator::EntityGeneration::generateSerializers /]
+[import PythonDjangoGenerator::EntityGeneration::generateViews /]
+[import PythonDjangoGenerator::EntityGeneration::generateEmptyView /]
+[import AccelerateGenerator::Queries::MicroserviceQueries /]
+
+[comment Generacion de entidades para cualquier db /]
+[template public entityGenerator(entity: Class, microservice: BackendMicroservice, environment: Provider)]
+
+[comment  
+	Para generar entidades de cualquier db se requiere 3 modulos:
+		-Models: Encargados de definir la estructura con la que se guarda en la base de datos.
+		-Serializers: Encargados de transformar tipos de datos nativos python en json y viceversa.
+		-Views: Encargados de brindar metodos de acceso y modificacion de datos.
+/]
+
+[generateModels(entity, microservice, environment)/]
+[generateSerializers(entity, microservice, environment)/]
+
+[comment 
+	Los Views solo son generados si la entidad fue marcada con el atributo "hasRoutes"
+ /]				
+[if (entity.hasRoutes = true)]
+	[generateViews(entity, microservice, environment)/]
+[/if]
+
+[if (microservice.contained_capabilities -> selectByKind(DatabaseCapability)->size() > 0)]
+
+[else]
+
+[comment 
+	Si no hay capacidad de base de datos se generan Views  
+	con funcionalidad a implementar por el desarrollador 
+/]
+[for (class : Class | NonAbstractClasses(microservice.oclAsType(Microservice)))]
+	[generateEmptyView(class.oclAsType(Classifier), microservice, environment)/]
+[/for]
+[/if]
+
+
+[/template]
