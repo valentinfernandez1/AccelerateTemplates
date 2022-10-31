@@ -11,7 +11,11 @@ from rest_framework import  status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from src.routes.indexRoutes import [for ( entityPackage : EntityPackage| self.contained_entityPackages)separator (',')]router[entityPackage.name.toUpperFirst()/][/for],[for ( namespace : Namespace| self.contained_namespaces)separator (',')] router[namespace.name.toUpperFirst()/][/for]
+from src.routes.indexRoutes import [for ( entityPackage : EntityPackage| self.contained_entityPackages)separator (',')]entityRoutes[/for]
+[if (microservice.contained_namespaces -> size() > 0)]
+from src.routes.indexRoutes import [for ( namespace : Namespace| self.contained_namespaces)separator (',')][namespace.name.toLowerFirst()/]Routes[/for]
+[/if]
+
 
 
 class index(APIView):
@@ -27,10 +31,10 @@ urlpatterns = ['['/]
   path('', index.as_view(), name='index'),
   path('health/', health.as_view(), name='health'),
   [for ( entityPackage : EntityPackage| self.contained_entityPackages)]
-  path('api/[entityPackage.name.toLower()/]/', include(router[entityPackage.name.toUpperFirst()/].urls)),
+  path('api/entity/', include(entityRoutes.urls)),
   [/for]
   [for ( namespace : Namespace| self.contained_namespaces)] 
-  path('api/[namespace.name.toLower()/]/', include(router[namespace.name.toUpperFirst()/].urls)),
+  path('api/[namespace.name.toLower()/]/', include([namespace.name.toLowerFirst()/]Routes.urls)),
   [/for]
   path('admin/', admin.site.urls)
 [']'/]

@@ -6,17 +6,19 @@
 [file (environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/routes/__init__.py', false, 'UTF-8')]
 [comment  import Entities Routers/]
 [for (entityPackage : EntityPackage | microservice.oclAsType(Diagram).contained_entityPackages )]
-# import [entityPackage.name/]
+# import entityRoutes
 	[for (class : Class | microservice.oclAsType(Diagram).contained_entityPackages.contained_classifiers.oclAsType(Class) )]
-from .[entityPackage.name.toLower()/]Routes.[class.name.toUpperFirst()/]Route import router[entityPackage.name.toUpperFirst()/]
+		[if (class.hasRoutes = true)]
+from .entityRoutes.[class.name.toUpperFirst()/]Route import entityRoutes
+		[/if]
 	[/for]
 [/for]
 
 [comment  Namespaces Routers/]
 [for (namespace : RESTNamespace | microservice.oclAsType(Diagram).contained_namespaces.oclAsType(RESTNamespace))]
-# import [namespace.name/]
+# import [namespace.name/]Routes
 	[for (resource : RESTResource | namespace.contained_resources)]
-from .[namespace.name.toLowerFirst()/]Routes.[resource.name.toLower()/]Route import router[namespace.name.toUpperFirst()/]
+from .[namespace.name.toLowerFirst()/]Routes.[resource.name/]Route import [namespace.name.toLowerFirst()/]Routes
 	[/for]
 
 [/for]

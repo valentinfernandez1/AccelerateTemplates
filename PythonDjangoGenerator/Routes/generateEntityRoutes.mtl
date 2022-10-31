@@ -2,10 +2,11 @@
 [module generateEntityRoutes('http://www.example.org/accelerateMLI','http://www.example.org/accelerateMLS', 'http://www.example.org/accelerateMLC')]
 
 [template public generateEntityRoutes(entity: Class, microservice: BackendMicroservice, environment: Provider)]
-[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/routes/entitiesRoutes/'+entity.oclAsType(Classifier).name+'Route.py'), false, 'UTF-8'), false, 'UTF-8')]
-from ...views.entityViews  import [entity.oclAsType(Classifier).name.toUpperFirst()/]View
-from ..indexRoutes import routerEntities
+[file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/routes/entityRoutes/'+entity.oclAsType(Classifier).name+'Route.py'), false, 'UTF-8'), false, 'UTF-8')]
+from ...views.entityViews import [entity.oclAsType(Classifier).name.toUpperFirst()/]View
+from ..indexRoutes import entityRoutes
 
-routerEntities.register('[entity.oclAsType(Classifier).name.toLower()/]', [entity.oclAsType(Classifier).name.toUpperFirst()/]View.[entity.oclAsType(Classifier).name.toUpperFirst()/]ViewSet)
+entityRoutes.register('[entity.oclAsType(Classifier).name.toLower()/]', [entity.oclAsType(Classifier).name.toUpperFirst()/]View.[entity.oclAsType(Classifier).name.toUpperFirst()/]ViewSet)
+
 [/file]
 [/template]

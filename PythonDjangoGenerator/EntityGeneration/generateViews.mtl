@@ -4,23 +4,37 @@
 
 [template public generateViews(entity: Class, microservice: BackendMicroservice, environment: Provider)]
 [file ((environment.oclAsType(Environment).name + '/Microservices/'+microservice.oclAsType(Microservice).name+'/src/views/entityViews/'+entity.eGet('name')+'View.py'), false, 'UTF-8')]
-from ..models.[entity.name.toUpperFirst()/] import [entity.name.toUpperFirst()/]
-from ..serializers.[entity.name.toUpperFirst()/]Serializer import [entity.name.toUpperFirst()/]Serializer
+from ...models.[entity.name.toUpperFirst()/] import [entity.name.toUpperFirst()/]
+from ...serializers.[entity.name.toUpperFirst()/]Serializer import [entity.name.toUpperFirst()/]Serializer
 from rest_framework import viewsets
-
 [comment Si alguna entidad requiere comunicacion a otro microservicio se importan los modulos necesarios. /]
 [if (existsExternalRelation(environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
 from rest_framework import status
 from rest_framework.response import Response
-from [microservice.name/].settings import env
 from requests.api import get
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
 [/if]
+
 
 class [entity.name.toUpperFirst()/]ViewSet(viewsets.ModelViewSet):
   queryset = [entity.name.toUpperFirst()/].objects.all()
   serializer_class = [entity.name.toUpperFirst()/]Serializer
 
+	[for (relationToEntity : DirectionalRelation | getExternalRelations(entity, environment.oclAsType(Environment), microservice.oclAsType(Microservice)))]
+  def retrieve(self, request, pk=None, *args, **kwargs):
 
+    [entity.name.toString().toLower()/] = [entity.name.toString().toUpperFirst()/].objects.get(pk=pk)
+    [relationToEntity.relationName/] = [entity.name.toString().toLower()/].[relationToEntity.relationName/]
+    res = get(env("[getMicroserviceOfRelation(relationToEntity, environment.oclAsType(Environment), microservice.oclAsType(Microservice)).name.toUpper()/]_MICROSERVICE_URL")+"/api/entity/[relationToEntity.destination.name.toLower()/]/"+[relationToEntity.relationName/])
+    obtained[relationToEntity.relationName.toUpperFirst()/] = res.json()
+    [entity.name.toString().toLower()/].[relationToEntity.relationName/] = obtained[relationToEntity.relationName.toUpperFirst()/]
+    serializer = [entity.name.toString().toUpperFirst()/]Serializer([entity.name.toString().toLower()/])
+
+    return Response(serializer.data,status=status.HTTP_200_OK)
+	[/for]
 
 
 [/file]

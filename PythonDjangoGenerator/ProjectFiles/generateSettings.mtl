@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = 'django-insecure-%3z((*l87j7nj9n-_sf^mxie4zweydwdb&wwi9y95!gl+18qe('
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -98,7 +98,7 @@ DATABASES = {
         'ENGINE': 'djongo',
         'CLIENT': {
             "host": env("MONGO_DB_URL"),
-            "name": env("DATABASE_NAME"),
+            "name": "[microservice.contained_capabilities -> selectByKind(DatabaseCapability).oclAsType(MongoDatabaseCapability).databaseName/]",
             "authMechanism":"SCRAM-SHA-1" # Mongo Atlas Cloud DB
         },
     }

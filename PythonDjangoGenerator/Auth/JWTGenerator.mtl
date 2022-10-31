@@ -1,0 +1,12 @@
+[comment encoding = UTF-8 /]
+[module JWTGenerator('http://www.example.org/accelerateMLC', 'http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+
+[import PythonDjangoGenerator::Auth::generateGenerateJWT /]
+[import PythonDjangoGenerator::Auth::generateValidateJWT /]
+
+[template public JWTGenerator(jwtAuth: JWTCapability, microservice: BackendMicroservice, environment: Provider)]
+
+[generateGenerateJWT(jwtAuth, microservice, environment)/]
+[generateValidateJWT(jwtAuth, microservice, environment)/]
+
+[/template]

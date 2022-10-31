@@ -10,6 +10,12 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+[if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> isEmpty() <> true)]
+	[if ((self.contained_routes -> select(x| x.oclAsType(RESTRoute).requiresAuth) -> isEmpty() <> true))]
+from ...middlewares.validateJWT import validateAuth
+from django.utils.decorators import method_decorator
+	[/if]
+[/if]
 
 class [resource.name/](viewsets.ViewSet):
 
@@ -18,49 +24,49 @@ class [resource.name/](viewsets.ViewSet):
     def list(self, request, format=None):
         return Response('NOT IMPLEMENTED',status=status.HTTP_200_OK)
 [/if]
-
 [for (route : RESTRoute | self.contained_routes -> selectByType(RESTRoute))]
 	[if (route.pathExtension.toString() = '/')]
 		[if (route.httpMethod.toString() = 'GET')]
 			[if (route.parameters.size() = 0)]
+    [if (route.requiresAuth)][if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() = 0)]# autenticationMiddleware[else]@method_decorator(validateAuth)[/if][/if]
 	# GET path /api/[namespace.name/]/[resource.name/]/
     def list(self, request, format=None):
         return Response('NOT IMPLEMENTED',status=status.HTTP_200_OK)	
 			[else]
+    [if (route.requiresAuth)][if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() = 0)]# autenticationMiddleware[else]@method_decorator(validateAuth)[/if][/if]
 	# GET path /api/[namespace.name/]/[resource.name/]/{[route.parameters.toString()/]}/
-    def retrieve(self, request, pk=[route.parameters.toString()/]):
+    def retrieve(self, request, pk=None, [route.parameters.toString()/]=None):
         return Response('NOT IMPLEMENTED',status=status.HTTP_200_OK)
 			[/if]
 		[elseif (route.httpMethod.toString() = 'POST')]
+    [if (route.requiresAuth)][if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() = 0)]# autenticationMiddleware[else]@method_decorator(validateAuth)[/if][/if]
     # POST path /api/[namespace.name/]/[resource.name/]/
     def create(self, request):
         return Response('NOT IMPLEMENTED',status=status.HTTP_200_OK)
 		[elseif (route.httpMethod.toString() = 'PUT')]
+    [if (route.requiresAuth)][if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() = 0)]# autenticationMiddleware[else]@method_decorator(validateAuth)[/if][/if]
     # PUT path /api/[namespace.name/]/[resource.name/]/{[route.parameters.toString()/]}/
-    def update(self, request, pk=[route.parameters.toString()/]):
+    def update(self, request, pk=None, [route.parameters.toString()/]=None):
         return Response('NOT IMPLEMENTED',status=status.HTTP_200_OK)
 		[elseif (route.httpMethod.toString() = 'DELETE')]
+    [if (route.requiresAuth)][if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() = 0)]# autenticationMiddleware[else]@method_decorator(validateAuth)[/if][/if]
     # DELETE path /api/[namespace.name/]/[resource.name/]/{[route.parameters.toString()/]}/
-    def destroy(self, request, pk=[route.parameters.toString()/]):
+    def destroy(self, request, pk=None, [route.parameters.toString()/]=None):
         return Response('NOT IMPLEMENTED',status=status.HTTP_200_OK)
 		[/if]
 	[elseif (route.parameters.size() = 0)]
-	# [route.httpMethod.toString()/] /api/[namespace.name/]/[resource.name/]/[route.pathExtension.replace('/', '')/]/
+    [if (route.requiresAuth)][if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() = 0)]# autenticationMiddleware[else]@method_decorator(validateAuth)[/if][/if]
+    # [route.httpMethod.toString()/] /api/[namespace.name/]/[resource.name/]/[route.pathExtension.replace('/', '')/]/
     @action(methods=['["'/][route.httpMethod.toString().toLower()/]['"]'/], detail=False, url_path="[route.pathExtension.replace('/', '')/]")
     def route(self, request):
         return Response('NOT IMPLEMENTED',status=status.HTTP_200_OK)
 	[else]
-	# [route.httpMethod.toString()/] /api/[namespace.name/]/[resource.name/]/[route.pathExtension.replace('/', '')/]/{[route.parameters.toString()/]}/
-    @action(methods=['["'/][route.httpMethod.toString().toLower()/]['"]'/], detail=True, url_path="[route.pathExtension.replace('/', '')/]")
-    def route[resource.contained_routes->selectByType(RESTRoute)->indexOf(route)/](self, request, pk=[route.parameters.toString()/]):
+    [if (route.requiresAuth)][if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() = 0)]# autenticationMiddleware[else]@method_decorator(validateAuth)[/if][/if]
+    # [route.httpMethod.toString()/] /api/[namespace.name/]/[resource.name/]/[route.pathExtension.replace('/', '')/]/{[route.parameters.toString()/]}/
+    @action(methods=['["'/][route.httpMethod.toString().toLower()/]['"]'/], detail=False, url_path="[route.pathExtension.replace('/', '')/]")
+    def route[resource.contained_routes->selectByType(RESTRoute)->indexOf(route)/](self, request, pk=None, [route.parameters.toString()/]=None):
         return Response('NOT IMPLEMENTED',status=status.HTTP_200_OK)
 	[/if]
-
 [/for]
-
-
-
-
-
 [/file]
 [/template]

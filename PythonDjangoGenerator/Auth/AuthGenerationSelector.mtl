@@ -1,0 +1,14 @@
+[comment encoding = UTF-8 /]
+[module AuthGenerationSelector('http://www.example.org/accelerateMLC', 'http://www.example.org/accelerateMLI', 'http://www.example.org/accelerateMLS')]
+
+[import  PythonDjangoGenerator::Auth::JWTGenerator/]
+
+[template public AuthGenerationSelector(microservice: BackendMicroservice, environment: Provider)]
+[comment 
+	El selector esta a cargo de direccionar al generador 
+	correspondiente al generador de autenticacion seleccionado
+/]
+[if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability)->first().oclIsTypeOf(JWTCapability) <> false)]
+	[JWTGenerator(microservice.contained_capabilities -> selectByType(JWTCapability)->first(), microservice, environment)/]
+[/if]
+[/template]

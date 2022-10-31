@@ -10,14 +10,14 @@ from rest_framework import routers
 
 [comment  Entity Router/]
 [for (entityPackage : EntityPackage | microservice.oclAsType(Diagram).contained_entityPackages )]
-#[entityPackage.name/] Router
-router[entityPackage.name.toUpperFirst()/] = routers.DefaultRouter()
+# entityRoutes
+entityRoutes = routers.DefaultRouter()
 [/for]
 
 [comment  Namespace Router/]
 [for (namespace : Namespace | microservice.oclAsType(Diagram).contained_namespaces )]
-#[namespace.name/] Router
-router[namespace.name.toUpperFirst()/] = routers.DefaultRouter()
+#[namespace.name/] Routes
+[namespace.name.toLowerFirst()/]Routes = routers.DefaultRouter()
 [/for]
 
 [/file]

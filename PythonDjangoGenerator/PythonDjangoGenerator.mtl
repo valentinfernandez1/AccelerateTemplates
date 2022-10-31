@@ -13,10 +13,16 @@
 [import PythonDjangoGenerator::ProjectFiles::generateWsgi /]
 [import PythonDjangoGenerator::ProjectFiles::generateAsgi/]
 [import PythonDjangoGenerator::ProjectFiles::generateUrls/]
+[import PythonDjangoGenerator::ProjectFiles::generateAdmin/]
+[import PythonDjangoGenerator::ProjectFiles::generateApps/]
+[import PythonDjangoGenerator::ProjectFiles::generateTests/]
+[import PythonDjangoGenerator::ProjectFiles::generateEnv/]
 
 [import PythonDjangoGenerator::EntityGeneration::entityGenerator/]
 
 [import PythonDjangoGenerator::Routes::RoutesGenerator/]
+
+[import PythonDjangoGenerator::Auth::AuthGenerationSelector /]
 
 [template public pythonDjangoGenerator(microservice: BackendMicroservice, environment: Provider)]
 [comment Here every file for the microservice is generated based on the functions /]
@@ -33,6 +39,11 @@
 [generateAsgi(microservice, environment)/]
 [generateWsgi(microservice, environment)/]
 [generateUrls(microservice, environment)/]
+[generateAdmin(microservice, environment)/]
+[generateApps(microservice, environment)/]
+[generateTests(microservice, environment)/]
+[generateEnv(microservice, environment)/]
+
 
 [comment Entity Generator/]
 [comment Se itera por cada entidad NO ABSTRACTA del microservicio y se la genera/]
@@ -48,5 +59,10 @@
 
 [comment Routes Generator/]
 [routesGenerator(microservice, environment)/]
+
+[comment Auth Generator/]
+[if (microservice.contained_capabilities -> selectByKind(AuthenticationCapability) -> size() > 0)]
+	[AuthGenerationSelector(microservice, environment)/]
+[/if]
 
 [/template]
